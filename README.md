@@ -1,70 +1,93 @@
-# Getting Started with Create React App
+# "Универсальный" сервер для выпускного проекта
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Как работает сервер?
 
-## Available Scripts
+Вы описываете состояние (данные) в файле `state.json`, который загружается при старте сервера.
 
-In the project directory, you can run:
+Состояние представляет собой упрощённый аналог `state` Redux - это объект, в котором свойства - это произвольные
+массивы.
 
-### `yarn start`
+Вы можете выполнять с этими массивами типичные операции:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+1. Получить содержимое массива
+2. Получить конкретный элемент из массива по `id`
+3. Добавить элемент в массив (нужно передавать JSON с `id` = 0)
+4. Обновить элемент в массиве (нужно передавать JSON с `id` != 0)
+5. Удалить элемент из массива (нужно передавать `id` в адресной строке - см. примеры)
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Примеры
 
-### `yarn test`
+В `state.json`, который идёт по умолчанию, есть ключ `accounts`, в котором хранятся счета пользователя. Соответственно, мы можем выполнять операции с этими счетами.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Везде дальше в URL'ах будет `accounts`. Но если вы захотите использовать не `accounts`, а, например, `history` (история операций пользователя), то вместо `accounts` везде в URL'ах подставляете `history`.
 
-### `yarn build`
+1\. Получение списка всех счетов
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```http request
+GET http://localhost:9999/api/accounts
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+2\. Получение конкретного счёта по `id`, где `1001` - это `id` счёта
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```http request
+GET http://localhost:9999/api/accounts/1001
+```
 
-### `yarn eject`
+3\. Добавление/создание нового счёта (`id` будет сгенерирован автоматически)
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```http request
+POST http://localhost:9999/api/accounts
+Content-Type: application/json
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+{
+  "id": 0,
+  "title": "Дополнительный счёт",
+  "number": "XXXXXXXXXXXXXXXXXXX",
+  "balance": 99999.99
+}
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+**Важно**: сервер не проверяет данные, которые вы присылаете (только смотрит `id === 0`), в остальном - сохраняет запись "как есть".
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Т.е. вам на клиентской стороне придётся самим установить номер счёта и баланс (в реальной жизни это делает сервер). Но такова цена "универсальности".
 
-## Learn More
+4\. Полное изменение существующего счёта (`id` должен быть не равен `0`)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```http request
+POST http://localhost:9999/api/accounts
+Content-Type: application/json
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+{
+  "id": 1001,
+  "title": "Переименованный счёт",
+  "number": "XXXXXXXXXXXXXXXXXXX",
+  "balance": 99999.99
+}
+```
 
-### Code Splitting
+**Важно**: сервер не проверяет данные, которые вы присылаете (только смотрит `id !== 0`), в остальном - сохраняет запись "как есть".
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+5\. Частичное изменение существующего счёта (`id` должен быть не равен `0`)
 
-### Analyzing the Bundle Size
+```http request
+PUT http://localhost:9999/api/accounts/1001
+Content-Type: application/json
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+{
+  "balance": 99999.99
+}
+```
 
-### Making a Progressive Web App
+**Важно**: сервер не проверяет данные, которые вы присылаете (только смотрит `id !== 0`), в остальном - сохраняет запись "как есть".
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Например, чтобы эмулировать списание денег со счёта, вам нужно будет отправить этот запрос, в котором прислать уже уменьшенный баланс.
 
-### Advanced Configuration
+При этом перепишется только баланс (вы можете отправить больше полей).
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+6\. Удаление счёта по `id` (`1001` - это и есть `id`)
 
-### Deployment
+```http request
+DELETE http://localhost:9999/api/accounts/1001
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Для этого у вас есть запрос: `deleteJSON` в последней лекции (`04_thunk`).

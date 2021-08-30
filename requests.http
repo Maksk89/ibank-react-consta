@@ -1,0 +1,38 @@
+###
+GET http://localhost:9999/api/accounts
+
+###
+GET http://localhost:9999/api/accounts/1001
+
+###
+POST http://localhost:9999/api/accounts
+Content-Type: application/json
+
+{
+  "id": 0,
+  "title": "Дополнительный счёт",
+  "number": "XXXXXXXXXXXXXXXXXXX",
+  "balance": 99999.99
+}
+
+###
+POST http://localhost:9999/api/accounts
+Content-Type: application/json
+
+{
+  "id": 1001,
+  "title": "Переименованный счёт",
+  "number": "XXXXXXXXXXXXXXXXXXX",
+  "balance": 99999.99
+}
+
+###
+PUT http://localhost:9999/api/accounts/1001
+Content-Type: application/json
+
+{
+  "balance": 1000
+}
+
+###
+DELETE http://localhost:9999/api/accounts/1001
