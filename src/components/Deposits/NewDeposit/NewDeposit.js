@@ -1,274 +1,248 @@
-import React, {useEffect, useRef, useState} from 'react';
-import DepositOption from './DepositOption/DepositOption';
-import PropTypes from 'prop-types';
-import { Button } from '@consta/uikit/Button';
-import { Loader } from '@consta/uikit/Loader';
-import Input from '../../../ui/Input/Input';
+import React, {useState} from 'react';
 import {postJSON} from '../../../utils/http';
+import PropTypes from 'prop-types';
+import styles from './NewDeposit.module.css';
 import Form from '../../../ui/Form/Form';
-import {rub} from '../../../utils/format';
+import Input from '../../../ui/Input/Input';
+import {Loader} from '@consta/uikit/Loader';
+import {IconAdd} from '@consta/uikit/IconAdd';
+import {IconBackward} from '@consta/uikit/IconBackward';
+import {IconCheck} from '@consta/uikit/IconCheck';
+import {Button} from '@consta/uikit/Button';
+import {Grid, GridItem} from '@consta/uikit/Grid';
+import {Text} from '@consta/uikit/Text';
+import {IconRestart} from '@consta/uikit/IconRestart';
 
 const NewDeposit = (
   {
     onComplete,
-    onFinish,
   }
 ) => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [step, setStep] = useState(1);
-  const ref = useRef();
-
   const [deposits, setDeposits] = useState([
     {
       id: 1,
       title: '"150 лет надежности"',
       percent: 'До 5,25%',
-      minAmount: 15000,
-      maxAmount: 300000000,
-      minPeriod: 3,
-      maxPeriod: 36,
     },
     {
       id: 2,
       title: '"Пополняемый"',
       percent: 'До 2,70%',
-      minAmount: 15000,
-      maxAmount: 50000000,
-      minPeriod: 3,
-      maxPeriod: 18,
     },
     {
       id: 3,
       title: '"Управляемый"',
       percent: 'До 2,40%',
-      minAmount: 50000,
-      maxAmount: 50000000,
-      minPeriod: 12,
-      maxPeriod: 18,
     },
   ]);
+
+  //шаги по этапам
+  const [step, setStep] = useState(1);
+  //депозит
   const [deposit, setDeposit] = useState(null);
+
+  //значения суммы и периода по умолчанию для формы
   const [amount, setAmount] = useState(500000);
   const [period, setPeriod] = useState(3);
 
-  const [disableButtonAmount, setDisableButtonAmount] = useState(false);
-  const [disableButtonPeriod, setDisableButtonPeriod] = useState(false);
-  const [errorAmount, setErrorAmount] = useState(null);
-  const [errorPeriod, setErrorPeriod] = useState(null);
+//Значения для лоадера, ошибок и данных
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [data, setData] = useState(null);
 
-  const sendData = async (data) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await postJSON('/deposits', data);
-    } catch (e) {
-      setError(e);
-    } finally {
-      setLoading(false);
-    }
-  };
 
+  /*===============FUNCTION=====================*/
+
+
+
+  //============= FOR ONE STEPS==============
+
+  //выбор депозита на первом шаге, переход к второму шагу
   const handleDepositSelect = (evt, deposit) => {
     setDeposit(deposit);
-    setErrorAmount(null);
-    setErrorPeriod(null);
-    setDisableButtonAmount(false);
-    setDisableButtonPeriod(false);
-    setError(false);
-    setAmount(deposit.minAmount);
-    setPeriod(deposit.minPeriod);
-
-    setStep((prevState) => prevState + 1);
+    setStep(2);
   };
 
+  //============= FOR TWO STEPS==============
+
+//изменение значения суммы из формы
   const handleAmountChange = (evt) => {
     const {value} = evt.target;
-
-    if (value < deposit.minAmount) {
-      setErrorAmount(`
-      Минимальная сумма вклада ${rub(deposit.minAmount)}.
-      Введите сумму ${rub(deposit.minAmount)} или больше
-      `);
-      setDisableButtonAmount(true);
-    } else if (value > deposit.maxAmount) {
-      setErrorAmount(`
-      Максимальная сумма вклада ${rub(deposit.maxAmount)}.
-      Введите сумму ${rub(deposit.maxAmount)} или меньше.
-      Вы можете открыть два и больше вкладов
-      `);
-      setDisableButtonAmount(true);
-    } else {
-      setErrorAmount(null);
-      setDisableButtonAmount(false);
-    }
-
     setAmount(value);
-  };
-
+  }
+  // изменение значения периода из формы
   const handlePeriodChange = (evt) => {
     const {value} = evt.target;
-
-    if (value < deposit.minPeriod) {
-      setErrorPeriod(`
-      Минимальный срок вклада месяцев: ${deposit.minPeriod}.
-      Введите значение ${deposit.minPeriod} или больше.
-      `);
-      setDisableButtonPeriod(true);
-    } else if (value > deposit.maxPeriod) {
-      setErrorPeriod(`
-      Максимальный срок вклада месяцев: ${deposit.maxPeriod}.
-      Введите значение ${deposit.maxPeriod} или меньше.
-      `);
-      setDisableButtonPeriod(true);
-    } else {
-      setErrorPeriod(null);
-      setDisableButtonPeriod(false);
-    }
-
     setPeriod(value);
-  };
+  }
 
-  const handleBack = () => {
-    setStep((prevState) => prevState - 1);
-  };
-
+  //обработка данных из формы на втором шаге
   const handleSubmit = (evt) => {
     evt.preventDefault();
-    sendData(
-      {
-        depositId: deposit.id,
-        amount: Number(amount),
-        period: Number(period),
-      });
-
-    setStep((prevState) => prevState + 1);
+    setDeposit(deposit);
+    //setStep(2);
   };
 
-  const handleRetry = () => {
-    sendData(
-      {
-        depositId: deposit.id,
-        amount: Number(amount),
-        period: Number(period),
-      }
-    );
-  };
+  // Функция возврата назад со второго шага
+  const handleForwardDepositSelect = (evt, deposit) => {
+    setDeposit(null);
+    setStep(1);
+  }
 
-  const handleFinish = () => {
+//============= FOR THIRD STEPS==============
+
+  //закрытие окна на третьем шагу
+  const handleClose = (evt) => {
     if (typeof onComplete !== 'function') {
       return;
     }
     onComplete();
-  }
+  };
 
-  useEffect(() => {
-    if (step === 2) {
-      ref.current?.focus();
-    }
-  }, [step]);
 
-  if (loading) {
-    return (
-      <div data-testid="loading">
-        <p>Данные отправляются. Ожидаем подтверждение операции.</p>
-        <Loader/>
-      </div>
-    );
-  }
+  /*===============END FUNCTION=====================*/
 
+
+
+  /*================== STEPS ==================*/
+
+  /*================== FIRST STEPS ==================
+  =====================Выбор типа вклада============= */
   if (step === 1) {
     return (
-      <div data-testid="selection">
+      <div>
         <h3>Выберите вклад</h3>
-        {deposits?.map((deposit) => <DepositOption
-          key={deposit?.id}
-          deposit={deposit}
-          onSelect={handleDepositSelect}
+        {deposits.map((deposit) => <div className={styles.container}
+                                        key={deposit.id}
+                                        onClick={(evt) => handleDepositSelect(evt, deposit)}
         >
           {deposit.title} - {deposit.percent}
-        </DepositOption>)}
+        </div>)}
       </div>
-    );
+    )
   }
+
+  /*================== END FIRST STEPS ==================*/
+
+
+  /*================== TWO STEPS ==================
+форма ввода суммы и периода + возможность вернуться назад к выбору вкладов + проверка данных
+============= */
 
   if (step === 2) {
+
+    const dataJSON = {
+      "depositId": deposit.id,
+      "amount": Number(amount),
+      "period": Number(period),
+    };
+
+    const loadData = async () => {
+      setLoading(true);
+      setError(null);
+      setData(null);
+      try {
+        setData(await postJSON('/deposits', dataJSON));
+      } catch (e) {
+        setData(null);
+        setError(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const handleRetry = async () => {
+      await loadData();
+    };
+
+   /* useEffect(() => {
+      loadData();
+    }, []);*/
+
+    if (error) {
+      return (
+        <>
+          <div data-testid="error">
+            <p>Произошла ошибка</p>
+            <Button iconLeft={IconRestart} label="Повторить попытку" onClick={handleRetry}/>
+          </div>
+        </>
+      );
+    }
+
+    if (loading) {
+      return (
+        <>
+          <div data-testid="loading">
+            <Loader/>
+          </div>
+        </>
+      );
+    }
+
+    if (data?.status === "ok") {
+      return setStep(3);
+    }
+
     return (
       <div data-testid="params">
-        <h3>{deposit.title}</h3>
-        <Form name="depositInput" onSubmit={handleSubmit}>
-          <Input
-            name="amount"
-            type="number"
-            miniTitle="Сумма вклада"
-            value={amount}
-            ref={ref}
-            error={errorAmount}
-            onChange={handleAmountChange}
-          />
-          <Input
-            name="period"
-            type="number"
-            miniTitle="Срок вклада, месяцев"
-            value={period}
-            error={errorPeriod}
-            onChange={handlePeriodChange}
-          />
-          <Button
-            name="send"
-            view={'accentForm'}
-            disabled={disableButtonAmount ? disableButtonAmount : disableButtonPeriod}
-          >
-            Открыть вклад
-          </Button>
-          <Button
-            name="previous"
-            view={'regularForm'}
-            onClick={handleBack}
-          >
-            Назад
-          </Button>
+        <h3>Открыть вклад {deposit.title}?</h3>
+        <Form onSubmit={handleSubmit}>
+
+          <Grid cols="2" gap="xl">
+            <GridItem col="2">
+          <Input name="amount" type="text" value={amount} onChange={handleAmountChange}/>
+              </GridItem>
+            <GridItem col="2">
+          <Input name="period" type="text" value={period} onChange={handlePeriodChange}/>
+            </GridItem>
+            <GridItem col="2">
+              <hr/>
+              <Text weight="semibold" align="center">Деньги спишутся с существующего вклада</Text>
+            </GridItem>
+
+              <GridItem>
+                <Text align="center">
+          <Button iconLeft={IconBackward} label="Назад" onClick={handleForwardDepositSelect}/>
+                </Text>
+              </GridItem>
+            <GridItem>
+              <Text align="center">
+          <Button iconLeft={IconAdd} label="Открыть" onClick={loadData}/>
+              </Text>
+              </GridItem>
+          </Grid>
+
         </Form>
       </div>
-    );
+    )
+
+
   }
 
-  if (error) {
-    return (
-      <div data-testid="error">
-        <p>Не удалось загрузить данные</p>
-        <Button
-          name="retry"
-          view={'accentForm'}
-          onClick={handleRetry}
-        >
-          Повторить попытку
-        </Button>
-        <Button
-          name="previous"
-          view={'regularForm'}
-          onClick={handleBack}
-        >
-          Назад
-        </Button>
-      </div>
-    );
-  }
+  /*================== END TWO STEPS ==================*/
+
+
+  /*================== THIRD STEPS ==================
+Ответ готово
+============= */
 
   if (step === 3) {
-    if (typeof onFinish !== 'function') {
-      return;
-    }
-    onFinish();
-
-    return (
-      <div data-testid="ok">
-        <h3>{deposit.title}</h3>
-        <div className="successful"> </div>
-        <Button view="accentForm" onClick={handleFinish}>ГОТОВО</Button>
-      </div>
-    );
+  //успешно
+      return (
+        <div data-testid="ok">
+          <h3>{deposit.title}</h3>
+          <p>Успешно</p>
+          <Button iconLeft={IconCheck} label="Готово" onClick={handleClose}/>
+        </div>
+      )
   }
+
+  /*================== END THIRD STEPS ==================*/
+
+
+  /*================== END STEPS ==================*/
+
 
 };
 

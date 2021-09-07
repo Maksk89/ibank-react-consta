@@ -36,3 +36,24 @@ Content-Type: application/json
 
 ###
 DELETE http://localhost:9999/api/accounts/1001
+
+###
+GET http://localhost:9999/api/bonuses
+
+###
+POST http://localhost:9999/api/bonuses
+Content-Type: application/json
+
+
+###
+GET http://localhost:9999/api/deposits
+
+###
+GET http://localhost:9999/api/deposits/3001
+
+###
+POST http://localhost:9999/api/deposits
+Content-Type: application/json
+
+
+

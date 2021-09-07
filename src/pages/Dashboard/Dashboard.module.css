@@ -1,0 +1,23 @@
+.logo {
+  background: url(https://js-rosbank.ru/static/media/rosbank-js-school-logo.a66bd26e.svg) 50% 50% no-repeat;
+  background-size: auto;
+  background-size: cover;
+  width: 302px;
+  height: 52px;
+  margin-top: var(--space-2xl);
+}
+
+.section {
+  padding-top: var(--space-6xl);
+  padding-bottom: var(--space-6xl);
+  padding-left: var(--space-6xl);
+  padding-right: var(--space-6xl);
+}
+
+.gridClassCustom{
+  border: 2px solid grey;
+}
+.gridClassCustomItem {
+  border: 2px solid var(--color-bg-ghost);
+  padding: var(--space-xl);
+}

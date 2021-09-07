@@ -1,17 +1,19 @@
 import React from 'react';
 import Card from '../Card/Card';
 import PropTypes from 'prop-types';
-import {rubMod} from '../../../utils/format';
+import {Text} from '@consta/uikit/Text';
 
 const Account = ({item}) => {
   return (
     <div>
-      {item?.title}
-      {item?.number}
-      {rubMod(item?.balance)}
+      <Text weight="bold">{item?.title}</Text>
+      Номер счета: {item?.number}<br/>
+      <Text view="brand">Баланс: {item?.balance}</Text>
       {item?.cards?.map((card) => <Card key={card.id} item={card}/>)}
+      <hr/>
     </div>
   );
+
 };
 
 Account.propTypes = {

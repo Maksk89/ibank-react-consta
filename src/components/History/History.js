@@ -1,10 +1,11 @@
 import React, {useEffect, useState} from 'react';
+import {Loader} from '@consta/uikit/Loader';
+import {rub} from '../../utils/format';
 import {getJSON} from '../../utils/http';
-import { Button } from '@consta/uikit/Button';
-import { Loader } from '@consta/uikit/Loader';
-import {rubMod} from '../../utils/format';
+import {Button} from '@consta/uikit/Button';
+import {IconRestart} from '@consta/uikit/IconRestart';
 
-const History = (props) => {
+const History = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
@@ -25,44 +26,47 @@ const History = (props) => {
   const handleRetry = async () => {
     await loadData();
   };
+
   useEffect(() => {
     loadData();
   }, []);
 
   if (loading) {
     return (
-      <div data-testid="loading">
-        <Loader/>
-      </div>
-    );
+      <>
+      <Loader/>
+  </>
+  );
   }
 
   if (error) {
     return (
-      <div data-testid="error">
-        <p>Не удалось загрузить данные</p>
-        <Button onClick={handleRetry}>Повторить попытку</Button>
-      </div>
+      <>
+        <div data-testid="error">
+          <p>Произошла ошибка</p>
+          <Button iconLeft={IconRestart} label="Повторить попытку" onClick={handleRetry}/>
+        </div>
+      </>
     );
   }
 
-  if (data.length === 0) {
+  if (!data.length) {
     return (
-      <div data-testid="no-operations">
-        За последнее время у Вас не было операций
-      </div>
+      <>
+        <div data-testid="no-operations">За последнее время у вас не было операций</div>
+      </>
     );
   }
 
   return (
     <>
-      {data?.map((operation) => <div data-testid="operation" key={operation?.id}>
-          <span data-testid="title">{operation.title}</span>
-          <span data-testid="amount">{rubMod(operation.amount)}</span>
-        </div>
-      )}
+      {data?.map((history) =>
+        <div key={history?.id} data-testid="operation">
+          <span data-testid="title">{(history?.title)}</span>
+          <span data-testid="amount">{rub(history?.amount)}</span>
+        </div>)}
     </>
-  )
+  );
 };
 
 History.propTypes = {};

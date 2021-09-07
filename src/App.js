@@ -1,13 +1,16 @@
 import React from 'react';
 import Dashboard from './pages/Dashboard/Dashboard';
-import {presetGpnDefault, Theme} from '@consta/uikit/Theme';
 
-const App = () => {
-    return (
-        <Theme preset={presetGpnDefault}>
-            <Dashboard/>
-        </Theme>
-    );
-};
+import { Theme, presetGpnDefault } from '@consta/uikit/Theme';
+//import { customThemePreset } from 'ui/CustomTheme/myPresetDefault';
+
+const App = () => (
+  <Theme preset={presetGpnDefault}>
+    <>
+      <Dashboard/>
+    </>
+  </Theme>
+);
+
 
 export default App;

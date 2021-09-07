@@ -1,17 +1,29 @@
 import React, {useEffect, useState} from 'react';
-import {rubMod, rub} from '../../utils/format';
+import {rub} from '../../utils/format';
 import {getJSON} from '../../utils/http';
-import styles from './Bonuses.module.css';
-import ParticipateBonuses from '../ParticipateBonuses/ParticipateBonuses';
-import { Button } from '@consta/uikit/Button';
-import { Loader } from '@consta/uikit/Loader';
-import { Modal } from '@consta/uikit/Modal';
+
+//импорт подключение программы кешбек
+import ParticipateBonuses from '../ParticipateBonuses/ParticipateBonuses'
+import styles from '../../pages/Dashboard/Dashboard.module.css';
+
+//Consta
+import {IconRestart} from '@consta/uikit/IconRestart';
+import {IconQuestion} from '@consta/uikit/IconQuestion';
+import {Button} from '@consta/uikit/Button';
+import {Loader} from '@consta/uikit/Loader';
+import {Modal} from '@consta/uikit/Modal';
+
+
+//import styles from './Bonuses.module.css';
+//import Modal from '../../ui/Modal/Modal';
+
 
 const Bonuses = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
   const [participateModalOpen, setParticipateModalOpen] = useState(false);
+
 
   const loadData = async () => {
     setLoading(true);
@@ -36,10 +48,11 @@ const Bonuses = () => {
   const handleParticipateModalClose = () => {
     setParticipateModalOpen(false);
   };
-  const handleParticipateBonusesComplete = () => {
+
+  const handleParticipateComplete = () => {
     setParticipateModalOpen(false);
     loadData();
-  }
+  };
 
   useEffect(() => {
     loadData();
@@ -53,7 +66,7 @@ const Bonuses = () => {
     return (
       <>
         <p>Произошла ошибка</p>
-        <Button onClick={handleRetry}>Повторить попытку</Button>
+        <Button iconLeft={IconRestart} label="Повторить попытку" onClick={handleRetry}/>
       </>
     );
   }
@@ -62,18 +75,21 @@ const Bonuses = () => {
     return (
       <>
         <p>У вас не подключен кешбек</p>
-        <Button onClick={handleParticipate}>Подключить</Button>
-        {participateModalOpen && <Modal onClose={handleParticipateModalClose}>
-          <ParticipateBonuses onComplete={handleParticipateBonusesComplete}/>
+        <Button iconLeft={IconQuestion} label="Подключить" onClick={handleParticipate}/>
+
+        {participateModalOpen && <Modal className={styles.modalCustom}
+          isOpen={participateModalOpen}>
+          <ParticipateBonuses onComplete={handleParticipateComplete}/>
         </Modal>
         }
+
       </>
     );
   }
 
   return (
     <>
-      <p className={styles.cashback}>Cashback: {rubMod(data?.balance)}</p>
+      <p className={styles.cashback}>Cashback: {rub(data?.balance)}</p>
     </>
   );
 };

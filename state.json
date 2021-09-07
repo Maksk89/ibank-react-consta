@@ -3,14 +3,14 @@
     {
       "id": 1001,
       "title": "Расчётный счёт",
-      "number": "XXXXXXXXXXXXXXXXXXX",
-      "balance": 99999.99
+      "number": "XXXXXXXXXXXXXXXXX11",
+      "balance": 99999.88
     },
     {
       "id": 1002,
       "title": "Текущий счёт",
-      "number": "XXXXXXXXXXXXXXXXXXX",
-      "balance": 99999.99,
+      "number": "XXXXXXXXXXXXXXXXX22",
+      "balance": 99999.77,
       "cards": [
         {
           "id": 2001,
@@ -31,8 +31,8 @@
     {
       "id": 3001,
       "title": "\"150 лет надёжности\"",
-      "finish": "10.11.2021",
-      "balance": 500000
+      "finish": "11.11.2021",
+      "balance": 600000
     }
   ],
   "templates": [
@@ -55,8 +55,8 @@
     },
     {
       "id": 97,
-      "title": "Мегафон (Мобильная связь)",
-      "amount": -1000
+      "title": "Билайн (Мобильная связь)",
+      "amount": -500
     }
   ]
 }

@@ -1,11 +1,12 @@
 import React from 'react';
+import {Text} from '@consta/uikit/Text';
 import PropTypes from 'prop-types';
 
 const Card = ({item}) => {
   return (
     <div>
-      {item?.type}
-      {item?.title}
+     <Text fontStyle="italic">({item?.type})</Text>
+      {item?.title}&nbsp;
       {item?.number}
     </div>
   );

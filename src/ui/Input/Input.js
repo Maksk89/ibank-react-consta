@@ -7,8 +7,7 @@ const Input = React.forwardRef((
     name,
     type = 'text',
     value = '',
-    error = false,
-    miniTitle = '',
+    error = '',
     onChange,
   }, ref
 ) => {
@@ -21,7 +20,6 @@ const Input = React.forwardRef((
 
   return (
     <>
-      <p className={styles.miniTitle}>{miniTitle}</p>
       <input
         name={name}
         type={type}
